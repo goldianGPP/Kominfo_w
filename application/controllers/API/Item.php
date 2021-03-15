@@ -3,7 +3,7 @@
     header('Access-Control-Allow-Origin: *');
 
     use chriskacerguis\RestServer\RestController;
-    class CtrlRecomender extends RestController 
+    class Item extends RestController 
     {
         public function __construct() 
         {
@@ -11,12 +11,11 @@
     		header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 
             parent::__construct();
-            $this->load->model('UserBased', 'ub');
-            $this->load->model('ItemBased', 'ib');
+            $this->load->model('ModelItem', 'item');
         }
 
         public function index_get($username = null,$password = null){
-            $res = $this->ub->getUser(); 
+            $res = $this->item->getUser(); 
             $this->response( $res , RestController::HTTP_OK);
         }
 
@@ -25,15 +24,26 @@
         // mangambil rekomendasi dari items
 
         public function itemrec_get(){
-            // $type=array("joran","kail","benang");
-            // $res = $this->ub->getRecommendations("id_pengguna-2", $type[array_rand($type)]);
-            $res = $this->ib->getRecommendations("id_pengguna-1", null, 1);
-            // $res = $this->ib->getRandomItems("1");
-            // $res = $this->ib->getItems(null);
+            $type=array("joran","kail","benang");
+            $res = $this->item->getRecommendations("id_pengguna-2", $type[array_rand($type)]);
             $this->response( $res , RestController::HTTP_OK);
         }
 
         //-----------------------------------------------------------------------------------------------
+
+        public function detail_post(){
+            $id_item = $this->post('id_item');
+            $jenis = $this->post('jenis');
+
+            if($jenis == "joran")
+                $res = $this->item->getDetailJoran($id_item);
+            else if($jenis == "kail")
+                $res = $this->item->getDetailKail($id_item);
+            else
+                $res = $this->item->getDetailBenang($id_item);
+
+            $this->response( $res[0] , RestController::HTTP_OK);
+        }
 
         public function index_post(){
             $data = [
@@ -43,7 +53,7 @@
                 'password' => $this->post('password'),
             ];
 
-            $data = $this->ub->createUser($data); 
+            $data = $this->item->createUser($data); 
             $this->response( $data , RestController::HTTP_OK);
         }
 
@@ -56,13 +66,13 @@
                 'password' => $this->post('password'),
             ];
 
-            $data = $this->ub->editUser($data); 
+            $data = $this->item->editUser($data); 
             $this->response( $data , RestController::HTTP_OK);
         }
 
         public function index_delete(){
             $data = $this->post('id_user');
-            $data = $this->ub->editUser($data); 
+            $data = $this->item->editUser($data); 
             $this->response( $data , RestController::HTTP_OK);
         }
     }

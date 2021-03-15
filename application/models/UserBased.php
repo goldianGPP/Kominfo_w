@@ -1,68 +1,46 @@
 <?php
 // || \\ array_push($data,['id_cuci' => $key->id_cuci,'nama_cuci' => $key->nama_cuci]);
-    class ModelRecommender extends CI_Model {
+    class UserBased extends CI_Model {
 
         var $Vdistance = [];
 
-        function __construct() {
+        public function __construct() {
             parent::__construct();
-        }
-
-        //get the items or needed datas from database
-        //mengambil item - item yang dibutuhkan dari basis data
-        public function getItems($person, $type){
-            $arr = [];
-            $this->db->select('item_rating.id_pengguna as "id_pengguna", item_rating.id_item as "id_item", nama, rating, 
-                               avg(rating) OVER( ORDER BY item_rating.id_pengguna asc) as "average"');
-            $this->db->from('item_rating');
-            $this->db->join('item','item_rating.id_item = item.id_item', 'left');
-            if($type != null){
-                $this->db->join($type,'item.id_item = '.$type.'.id_item');
-            }
-            $this->db->order_by('item_rating.id_pengguna', 'asc');
-
-            // sending a response with a custom array from class CI_DB_result
-            // mengirim hasil dengan bentuk custom array dari class CI_DB_result
-            return $this->db->get()->custom_array($arr);
-        }
-
-        //get the items or needed datas from database
-        //mengambil item - item yang dibutuhkan dari basis data
-        public function getItem($type){
-            $this->db->select('item.id_item, nama, harga, sumrating, sumrater, img');
-            $this->db->from('item');
-            if($type != null){
-                $this->db->join($type,'item.id_item = '.$type.'.id_item');
-            }
-            return $this->db->get()->result();
+            $this->load->model('ModelItem','mi');
         }
 
         //get the recommendation
         //mengambil rekomendasi
         public function getRecommendations($person,$type){
             $sim = [];
-            $result = [];
             $prediction = [];
+
+            // echo $type;
+            $datas = $this->mi->getUBItems($type);
+
+            foreach ($datas as $otherPerson => $values) {
+                if($otherPerson != $person){
+                    $sim[$otherPerson] = $this->similarities($datas,$person,$otherPerson);
+                }
+            }
+
+            array_multisort($sim, SORT_DESC);
+            
+                // array_multisort($test, SORT_DESC);
+            return $this->setPrediction($datas,$sim,$type,$person);;
+                
+        }
+
+        public function setPrediction($datas,$sim,$type,$person){
+            $result = [];
             $sumSim = 0;
             $sumPre = 0;
             $check = 0;
 
-            echo $type;
-            $datas = $this->getItems($person,$type);
-            $items = $this->getItem($type);
-
-            foreach ($datas as $otherPerson => $values) {
-                if($otherPerson != $person){
-                    $sim[$otherPerson] = $this->distance($datas,$person,$otherPerson);
-                    $sumSim += $sim[$otherPerson];
-                }
-            }
-
-            $check = 0;
-            array_multisort($sim, SORT_DESC);
+            $items = $this->mi->getUBItem($type);
             foreach ($items as $item) {
                 foreach ($datas as $otherPerson => $value) {
-                    if($otherPerson != $person){
+                    if(!array_key_exists("id_item-".$item->id_item,$datas[$person])){
                         //get rating prediction each data to only 5 higest score of user's similarity
                         //mengambil 5 data dari similaritas para user untuk menghitung prediksi score (nilai)
                         if(array_key_exists("id_item-".$item->id_item,$datas[$otherPerson])){
@@ -74,10 +52,12 @@
                     }
                 }
                 if($check != 0){
+                    // $test[$item->nama] = $sumPre;
                     array_push($result,
                         [
                             'id_item' => $item->id_item,
                             'nama' => $item->nama,
+                            'jenis' => $item->jenis,
                             'rating' => ($item->sumrating/$item->sumrater),
                             'img' => $item->img,
                             'harga' => $item->harga,
@@ -88,32 +68,23 @@
                 $check = 0;
             }
 
-            return $result;
-                
+            return$result;
         }
 
         //calculate similarity distance of rated data each users to user
         //menghitung jarak kesamaan dari rating yang dilakukan para pengguna terhadap pengguna tertentu
-        public function distance($datas,$person,$otherPerson){
+        public function similarities($datas,$person,$otherPerson){
             $p_prsnAvg = 0;
             $o_prsnAvg = 0;
-            $count = 0;
             $personItem = 0;
             $otherPersonItem = 0;
             $simDenominator = 0;
-            //check similarity true or false
-            //mengecek adanya kesamaan data
-            foreach ($datas[$person] as $item => $value) {
-                if(array_key_exists($item, $datas[$otherPerson])){
-                    $count += 1;
-                    break;
-                }
-            }
 
-            if($count == 0)
+            if(!$this->isEmpty($datas,$person,$otherPerson))
                 return $count;
 
-
+            //calculate similarities formula
+            //menghitung rumun mencari kesamaan antar user
             foreach ($datas[$person] as $item => $value) {
                 if(array_key_exists($item, $datas[$otherPerson])){
                     $personItem += (pow((float)$value[1]-(float)$value[2],2)); 
@@ -126,6 +97,21 @@
             $this->Vdistance[$otherPerson] = $o_prsnAvg;
             $sim = $simDenominator / ((sqrt($personItem)) * (sqrt($otherPersonItem)));
             return $sim;
+        }
+
+        //check similarity true or false
+        //mengecek adanya kesamaan data
+        public function isEmpty($datas,$person,$otherPerson){
+            $count = 0;
+
+            foreach ($datas[$person] as $item => $value) {
+                if(array_key_exists($item, $datas[$otherPerson])){
+                    $count += 1;
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

@@ -328,9 +328,28 @@ class CI_DB_result {
                 $child = [];
             }
             $temp = $key->id_pengguna;
-            $child['id_item-'.$key->id_item] = [$key->nama, $key->rating, $key->average];
+            $child['id_item-'.$key->id_item] = ['id_item-'.$key->id_item, $key->rating, $key->average];
         }
         $parent['id_pengguna-'.$temp] = $child;
+        return $parent;
+	}
+
+	public function custom_array2($parent)
+	{
+		$temp = "";
+		$child = [];
+
+		$result = $this->result("object");
+
+		foreach ($result as $key) {
+            if($temp != $key->id_item && $temp != ""){
+                $parent['id_item-'.$temp] = $child;
+                $child = [];
+            }
+            $temp = $key->id_item;
+            $child['id_pengguna-'.$key->id_pengguna] = ['id_pengguna-'.$key->id_pengguna, $key->rating, $key->item_ratings];
+        }
+        $parent['id_item-'.$temp] = $child;
         return $parent;
 	}
 
