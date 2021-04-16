@@ -33,7 +33,7 @@
 
         //setting prediction value each items
         //memberikan inlai prediksi terhadap item
-        public function setPrediction($datas,$sim,$type,$rand,$person){
+        public function setPrediction($datas,$sim,$type,$cur_item,$person){
             $result = [];
             $sumSim = 0;
             $sumPre = 0;
@@ -42,36 +42,36 @@
             $items = $this->mi->getIBItem($type);
             foreach ($items as $item) {
                 foreach ($sim as $otherItem => $value) {
-                    if($rand != $item->id_item){
+                    if($cur_item != $item->id_item){
                         //get rating prediction each data to only 5 higest score of user's similarity
                         //mengambil 5 data dari similaritas para user untuk menghitung prediksi score (nilai)
                         if(array_key_exists($person, $datas[$otherItem]) && array_key_exists('id_item-'.$item->id_item, $this->urating)){
                                 if($check <= 5){
-                                $sumPre += ($value * $this->urating[$otherItem]);
-                                $sumSim += $value;
-                                $check += 1;
+                                    $sumPre += ($value * $this->urating[$otherItem]);
+                                    $sumSim += abs($value);
+                                    $check += 1;
                             }
                         }
                     }
                             
                 }
                 if($check != 0){
-                    // array_push($result,
-                    //     [
-                    //         'id_item' => $item->id_item,
-                    //         'nama' => $item->nama,
-                    //         'jenis' => $item->jenis,
-                    //         'rating' => ($item->sumrating/$item->sumrater),
-                    //         'img' => $item->img,
-                    //         'harga' => $item->harga,
-                    //         'rank' => ($sumPre/abs($sumSim))
-                    //     ]);
-                    $result[$item->id_item] = ($sumPre/abs($sumSim));
+                    array_push($result,
+                        [
+                            'id_item' => $item->id_item,
+                            'nama' => $item->nama,
+                            'jenis' => $item->jenis,
+                            'rating' => ($item->subrating/$item->sumrater),
+                            'img' => $item->img,
+                            'harga' => $item->harga,
+                            'rank' => ($sumPre/$sumSim)
+                        ]);
                 }
                 $sumPre = 0;
                 $check = 0;
             }
 
+            array_multisort(array_column($result, 'rank'), SORT_DESC, $result);
             return$result;
         }
 

@@ -328,7 +328,7 @@ class CI_DB_result {
                 $child = [];
             }
             $temp = $key->id_pengguna;
-            $child['id_item-'.$key->id_item] = ['id_item-'.$key->id_item, $key->rating, $key->average];
+            $child['id_item-'.$key->id_item] = ['id_item-'.$key->id_item, $key->rating, $key->item_ratings];
         }
         $parent['id_pengguna-'.$temp] = $child;
         return $parent;

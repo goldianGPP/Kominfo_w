@@ -24,12 +24,14 @@
         // get recomendation for items
         // mangambil rekomendasi dari items
 
-        public function itemrec_get(){
-            // $type=array("joran","kail","benang");
-            // $res = $this->ub->getRecommendations("id_pengguna-2", $type[array_rand($type)]);
-            $res = $this->ib->getRecommendations("id_pengguna-1", null, 1);
-            // $res = $this->ib->getRandomItems("1");
-            // $res = $this->ib->getItems(null);
+        public function userbased_get($id_pengguna=null, $jenis=null){
+            $type=array("joran","kail","benang", null);
+            $res = $this->ub->getRecommendations("id_pengguna-".$id_pengguna, $jenis);
+            $this->response( $res , RestController::HTTP_OK);
+        }
+
+        public function itembased_get($id_pengguna=null, $jenis=null, $id_item=null){
+            $res = $this->ib->getRecommendations("id_pengguna-".$id_pengguna, $jenis, $id_item);
             $this->response( $res , RestController::HTTP_OK);
         }
 

@@ -9,13 +9,13 @@
         //mengambil item - item yang dibutuhkan dari basis data
         public function getIBItems($type){
             $arr = [];
-            $this->db->select('item_rating.id_pengguna as "id_pengguna", item_rating.id_item as "id_item", rating, item_ratings');
+            $this->db->select('item_rating.id_pengguna as "id_pengguna", item_rating.id_item as "id_item", rating, (SUMITEMRATING / SUMITEMRATED) as "item_ratings"');
             $this->db->from('item_rating');
             $this->db->join('pengguna','item_rating.id_pengguna = pengguna.id_pengguna', 'left');
             $this->db->join('histori_pengguna','pengguna.id_pengguna = histori_pengguna.id_pengguna', 'left');
             $this->db->join('item','item_rating.id_item = item.id_item', 'left');
             if($type != null){
-                $this->db->join($type,'item.id_item = '.$type.'.id_item');
+                $this->db->where('jenis', $type);
             }
             $this->db->order_by('item_rating.id_item', 'asc');
 
@@ -27,10 +27,10 @@
         //get the items or needed datas from database
         //mengambil item - item yang dibutuhkan dari basis data
         public function getIBItem($type){
-            $this->db->select('item.id_item, id_pengguna, jenis, nama, harga, sumrating, sumrater, img');
+            $this->db->select('item.id_item, id_toko, jenis, nama, harga, subrating, sumrater, img');
             $this->db->from('item');
             if($type != null){
-                $this->db->join($type,'item.id_item = '.$type.'.id_item');
+                $this->db->where('jenis', $type);
             }
             return $this->db->get()->result();
         }
@@ -42,12 +42,13 @@
         //mengambil item - item yang dibutuhkan dari basis data
         public function getUBItems($type){
             $arr = [];
-            $this->db->select('item_rating.id_pengguna as "id_pengguna", item_rating.id_item as "id_item", nama, rating, 
-                               avg(rating) OVER( ORDER BY item_rating.id_pengguna asc) as "average"');
+            $this->db->select('item_rating.id_pengguna as "id_pengguna", item_rating.id_item as "id_item", rating, (SUMITEMRATING / SUMITEMRATED) as "item_ratings"');
             $this->db->from('item_rating');
+            $this->db->join('pengguna','item_rating.id_pengguna = pengguna.id_pengguna', 'left');
+            $this->db->join('histori_pengguna','pengguna.id_pengguna = histori_pengguna.id_pengguna', 'left');
             $this->db->join('item','item_rating.id_item = item.id_item', 'left');
             if($type != null){
-                $this->db->join($type,'item.id_item = '.$type.'.id_item');
+                $this->db->where('jenis', $type);
             }
             $this->db->order_by('item_rating.id_pengguna', 'asc');
 
@@ -59,10 +60,10 @@
         //get the items or needed datas from database
         //mengambil item - item yang dibutuhkan dari basis data
         public function getUBItem($type){
-            $this->db->select('item.id_item, jenis, nama, harga, sumrating, sumrater, img');
+            $this->db->select('item.id_item, jenis, nama, harga, subrating, sumrater, img');
             $this->db->from('item');
             if($type != null){
-                $this->db->join($type,'item.id_item = '.$type.'.id_item');
+                $this->db->where('jenis', $type);
             }
             return $this->db->get()->result();
         }
@@ -80,37 +81,44 @@
             return $this->db->get()->row();
         }
 
-        public function getDetailJoran($id_item)
+        public function getDetailItems($id_item)
         {
-            $this->db->select('username, item.nama as "nama", description, harga, jumlah, jenis_joran.nama as "jenis_item", panjang, berat, (sumrating/sumrater) as rating, sumrater, img');
-            $this->db->from('pengguna');
-            $this->db->join('item','pengguna.id_pengguna = item.id_pengguna');
-            $this->db->join('joran','item.id_item = joran.id_item');
-            $this->db->join('jenis_joran','joran.id_jenis_joran = jenis_joran.id_jenis_joran');
+            $this->db->select('item.id_item, id_toko, nama as "nama", jenis, description, harga, jumlah, (subrating/sumrater) as rating, sumrater, img');
+            $this->db->from('item');
             $this->db->where('item.id_item',$id_item);
             return $this->db->get()->result();
         }
 
-        public function getDetailBenang($id_item)
-        {
-            $this->db->select('username, item.nama as "nama", description, harga, jumlah, jenis_benang.nama as "jenis_item", ketahanan, (sumrating/sumrater) as rating, sumrater, img');
-            $this->db->from('pengguna');
-            $this->db->join('item','pengguna.id_pengguna = item.id_pengguna');
-            $this->db->join('benang','item.id_item = benang.id_item');
-            $this->db->join('jenis_benang','benang.id_jenis_benang = jenis_benang.id_jenis_benang');
-            $this->db->where('item.id_item',$id_item);
-            return $this->db->get()->result();
+        //BASIC CRUD
+        //----------------------------------------------------------------------------------------------------------------------------------------
+
+        public function getItem($username){
+            // $this->db->select('id_item, nama');
+            // $this->db->from('item');
+            // $this->db->where('username', $username);
+            // return $this->db->get()->result();
+            
+            $this->db->set("status", "finished");
+            $this->db->update("transaksi");
         }
 
-        public function getDetailKail($id_item)
-        {
-            $this->db->select('username, item.nama as "nama", description, harga, jumlah, jenis_kail.nama as "jenis_item", ukuran, (sumrating/sumrater) as rating, sumrater, img');
-            $this->db->from('pengguna');
-            $this->db->join('item','pengguna.id_pengguna = item.id_pengguna');
-            $this->db->join('kail','item.id_item = kail.id_item');
-            $this->db->join('jenis_kail','kail.id_jenis_kail = jenis_kail.id_jenis_kail');
-            $this->db->where('item.id_item',$id_item);
-            return $this->db->get()->result();
+        public function postItem($data){
+            $this->db->insert('item', $data);
+        }
+
+        public function updateItem($data){
+            $this->db->set('nama', $data['nama']);
+            $this->db->set('jenis', $data['jenis']);
+            $this->db->set('description', $data['description']);
+            $this->db->set('harga', $data['harga']);
+            $this->db->set('jumlah', $data['jumlah']);
+            $this->db->where('id_item', $data['id_item']);
+            $this->db->update('item'); 
+        }
+
+        public function deleteItem($data){
+            $this->db->where('id_item', $data['id_item']);
+            $this->db->delete('item', $data);
         }
     }
 

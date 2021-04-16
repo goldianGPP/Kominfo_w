@@ -27,7 +27,7 @@
             array_multisort($sim, SORT_DESC);
             
                 // array_multisort($test, SORT_DESC);
-            return $this->setPrediction($datas,$sim,$type,$person);;
+            return $this->setPrediction($datas,$sim,$type,$person);
                 
         }
 
@@ -36,18 +36,26 @@
             $sumSim = 0;
             $sumPre = 0;
             $check = 0;
+            $avgU= 0;
+
+            foreach ($datas[$person] as $item => $value) {
+                $avgU = $value[2];
+                break;
+            }
 
             $items = $this->mi->getUBItem($type);
             foreach ($items as $item) {
-                foreach ($datas as $otherPerson => $value) {
+                foreach ($sim as $otherPerson => $value) {
                     if(!array_key_exists("id_item-".$item->id_item,$datas[$person])){
                         //get rating prediction each data to only 5 higest score of user's similarity
                         //mengambil 5 data dari similaritas para user untuk menghitung prediksi score (nilai)
-                        if(array_key_exists("id_item-".$item->id_item,$datas[$otherPerson])){
-                            if($check <= 5 && $sim[$otherPerson] != 0){
-                                $sumPre += ($this->Vdistance[$otherPerson] * $sim[$otherPerson]) / $sumSim;
-                                $check += 1;
-                            }
+                        if(array_key_exists("id_item-".$item->id_item, $datas[$otherPerson])){
+                            $sumPre += ($value * $this->Vdistance[$otherPerson]);
+                            $sumSim += abs($value);
+                            $check += 1;
+                            // echo $check."\n";
+                            if($check >= 5)
+                                break;
                         }
                     }
                 }
@@ -58,18 +66,21 @@
                             'id_item' => $item->id_item,
                             'nama' => $item->nama,
                             'jenis' => $item->jenis,
-                            'rating' => ($item->sumrating/$item->sumrater),
+                            'rating' => ($item->subrating/$item->sumrater),
                             'img' => $item->img,
                             'harga' => $item->harga,
-                            'rank' => $sumPre
+                            'rank' => ($avgU + ($sumPre/$sumSim))
                         ]);
                 }
                 $sumPre = 0;
                 $check = 0;
             }
-
-            return$result;
+            
+            array_multisort(array_column($result, 'rank'), SORT_DESC, $result);
+            return $result;
         }
+
+        //array_multisort(array_column($inventory, 'price'), SORT_DESC, $inventory);
 
         //calculate similarity distance of rated data each users to user
         //menghitung jarak kesamaan dari rating yang dilakukan para pengguna terhadap pengguna tertentu
@@ -80,8 +91,10 @@
             $otherPersonItem = 0;
             $simDenominator = 0;
 
-            if(!$this->isEmpty($datas,$person,$otherPerson))
-                return $count;
+            if(!$this->isEmpty($datas,$person,$otherPerson)){
+                $this->Vdistance[$otherPerson] = 0;
+                return 0;
+            }
 
             //calculate similarities formula
             //menghitung rumun mencari kesamaan antar user

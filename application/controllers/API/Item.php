@@ -14,64 +14,71 @@
             $this->load->model('ModelItem', 'item');
         }
 
-        public function index_get($username = null,$password = null){
-            $res = $this->item->getUser(); 
-            $this->response( $res , RestController::HTTP_OK);
-        }
 
-        //-----------------------------------------------------------------------------------------------
-        // get recomendation for items
-        // mangambil rekomendasi dari items
-
-        public function itemrec_get(){
-            $type=array("joran","kail","benang");
-            $res = $this->item->getRecommendations("id_pengguna-2", $type[array_rand($type)]);
-            $this->response( $res , RestController::HTTP_OK);
-        }
-
-        //-----------------------------------------------------------------------------------------------
+        //OTHER
+        //----------------------------------------------------------------------------------------------------------------------------------------
 
         public function detail_post(){
             $id_item = $this->post('id_item');
-            $jenis = $this->post('jenis');
-
-            if($jenis == "joran")
-                $res = $this->item->getDetailJoran($id_item);
-            else if($jenis == "kail")
-                $res = $this->item->getDetailKail($id_item);
-            else
-                $res = $this->item->getDetailBenang($id_item);
+            
+            $res = $this->item->getDetailItems($id_item);
 
             $this->response( $res[0] , RestController::HTTP_OK);
         }
 
+        public function jenis_get($jenis = null){
+            if($jenis == 'joran')
+                $res = $this->item->jenisJoran();
+            else if($jenis == "kail")
+                $res = $this->item->jenisKail();
+            else if($jenis == "benang")
+                $res = $this->item->jenisBenang();
+            else $res = null;
+
+            $this->response( $res , RestController::HTTP_OK);
+        }
+
+        //BASIC CRUD
+        //----------------------------------------------------------------------------------------------------------------------------------------
+
+        public function index_get($username = null){
+            $res = $this->item->getItem($username);
+            $this->response( $res , RestController::HTTP_OK);
+        }
+
         public function index_post(){
             $data = [
-                'username' => $this->post('username'),
-                'email' => $this->post('email'),
-                'phone' => $this->post('phone'),
-                'password' => $this->post('password'),
+                'id_toko' => $this->put('id_toko'),
+                'nama' => $this->put('nama'),
+                'jenis' => $this->put('jenis'),
+                'description' => $this->put('description'),
+                'harga' => $this->put('harga'),
+                'jumlah' => $this->put('jumlah'),
+                'img' => $this->put('img'),
+                'subrating' => 0,
+                'sumrater' => 0
             ];
 
-            $data = $this->item->createUser($data); 
+            $data = $this->item->postItem($data); 
             $this->response( $data , RestController::HTTP_OK);
         }
 
         public function index_put(){
             $data = [
-                'id_user' => $this->post('id_user'),
-                'username' => $this->post('username'),
-                'email' => $this->post('email'),
-                'phone' => $this->post('phone'),
-                'password' => $this->post('password'),
+                'id_item' => $this->put('id_item'),
+                'nama' => $this->put('nama'),
+                'jenis' => $this->put('jenis'),
+                'description' => $this->put('description'),
+                'harga' => $this->put('harga'),
+                'jumlah' => $this->put('jumlah'),
             ];
 
             $data = $this->item->editUser($data); 
             $this->response( $data , RestController::HTTP_OK);
         }
 
-        public function index_delete(){
-            $data = $this->post('id_user');
+        public function delete_put(){
+            $data = $this->put('id_user');
             $data = $this->item->editUser($data); 
             $this->response( $data , RestController::HTTP_OK);
         }
