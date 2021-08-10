@@ -15,23 +15,22 @@ use chriskacerguis\RestServer\RestController;
             $this->load->model('ModelUploadFile', 'file');
         }
 
-        public function upload_post(){
-            $name =  $this->input->post('name', TRUE);
-            $res = $this->file->upload($name,$_FILES);
-
-            $this->response( $_FILES , RestController::HTTP_OK);
+        public function index_get(){
+            $this->toko->getToko();
         }
 
         public function index_post(){
             $data = [
-                'id_pengguna' => $this->post('id_pengguna'),
-                'nama_toko' => $this->post('nama_toko'),
-                'latitude' => $this->post('latitude'),
-                'longitude' => $this->post('longitude'),
-                'alamat_toko' => $this->post('alamat_toko')
+                'id_pengguna' => $this->input->post('id_pengguna', TRUE),
+                'nama_toko' => $this->input->post('nama_toko', TRUE),
+                'latitude' => $this->input->post('latitude', TRUE),
+                'longitude' => $this->input->post('longitude', TRUE),
+                'alamat_toko' => $this->input->post('alamat_toko', TRUE)
             ];
-            
-            $res = $this->toko->createToko($data);
+            if($this->file->uploads($data['nama_toko'],"toko",$_FILES))
+                $this->toko->createToko($data);
+
+            $res = $this->toko->getId($data);
             $this->response( $res , RestController::HTTP_OK);
         }
 

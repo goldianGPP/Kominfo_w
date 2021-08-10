@@ -16,7 +16,7 @@
             //     $bulan = rand(1,12);
             //     $tanggal = rand(1,31);
 
-            //     $date = $tanggal."-".$bulan."-".$tahun;
+            //     $date = $tahun."-".$bulan."-".$tanggal;
             //     $this->db->set('created_at', $date);
             //     $add1 = rand(0,3);
             //     $date = $this->seting($tanggal,$bulan,$tahun,$add1);
@@ -50,7 +50,10 @@
                 if (strlen((string)$bulan) == 1) {
                    $bulan = "0".$bulan;
                 }
-                return $tanggal."-".$bulan."-".$tahun;
+                if (strlen((string)$tanggal) == 1) {
+                   $tanggal = "0".$tanggal;
+                }
+                return $tahun."-".$bulan."-".$tanggal;
 
             }
             else if($bulan == 4 || $bulan == 6 || $bulan == 9 || $bulan == 11){
@@ -66,7 +69,10 @@
                 if (strlen((string)$bulan) == 1) {
                    $bulan = "0".$bulan;
                 }
-                return $tanggal."-".$bulan."-".$tahun;
+                if (strlen((string)$tanggal) == 1) {
+                   $tanggal = "0".$tanggal;
+                }
+                return $tahun."-".$bulan."-".$tanggal;
             }
             else{
                 $added = $tanggal + $add;
@@ -81,7 +87,10 @@
                 if (strlen((string)$bulan) == 1) {
                    $bulan = "0".$bulan;
                 }
-                return $tanggal."-".$bulan."-".$tahun;
+                if (strlen((string)$tanggal) == 1) {
+                   $tanggal = "0".$tanggal;
+                }
+                return $tahun."-".$bulan."-".$tanggal;
             }
         }
 
@@ -90,12 +99,12 @@
                 $res = $this->db->insert('transaksi', $data);
 
                 if($res == 0)
-                    return $this->db->error();
+                    return false;
                 else 
-                    return $res;
+                    return true;
             }
             else
-                return 'sudah ada';  
+                return false;  
         }
 
         public function addOnRequest($id_transaksi,$data){
@@ -103,40 +112,42 @@
             $res = $this->db->update('transaksi', $data);
 
             if($res == 0)
-                return $this->db->error();
+                return false;
             else 
-                return $res;
+                return true;
+        }
+
+        public function setStatus($id_transaksi,$data){
+            $this->db->where('id_transaksi', $id_transaksi);
+            $res = $this->db->update('transaksi', $data);
+
+            if($res == 0)
+                return false;
+            else 
+                return true;
         }
 
         //BASIC CRUD
         //---------------------------------------------------------------------------------------------------------------------------------------
-        public function getFinished($id_pengguna,$switch){
-            return $this->getTransaksis($id_pengguna, "finished", $switch);
-        }
-
-        public function getRequested($id_pengguna,$switch){
-            return $this->getTransaksis($id_pengguna, "requested", $switch);
-        }
-
-        public function getCarts($id_pengguna,$switch){
-            return $this->getTransaksis($id_pengguna, "carted", $switch);
-        }
-
-        public function getTransaksis($id_pengguna, $status, $switch){
-            $arr = array('requested', 'carted');
-            $this->db->select('id_transaksi, nama_toko, nama, jenis, subtotal, img, transaksi.jumlah, harga, status, created_at');
+        public function getTransaksis($id_pengguna, $type, $indicate){
+            $ongoing = array('requested', 'carted');
+            $this->db->select('id_transaksi, transaksi.id_item, nama_toko, nama, jenis, subtotal, img, transaksi.jumlah, harga, transaksi.status, created_at, accepted_at, finished_at, toko.latitude, toko.longitude');
             $this->db->from('transaksi');
             $this->db->join('item', 'transaksi.id_item=item.id_item');
             $this->db->join('toko', 'toko.id_toko=item.id_toko');
-            $this->db->where($switch.'.id_pengguna', $id_pengguna);
-            if($status !== "finished"){
-                $this->db->where_in('status', $arr);
-                $this->db->order_by('created_at','desc');
+            $this->db->where($indicate.'.id_pengguna', $id_pengguna);
+            if($type == "request"){
+                $this->db->where_in('transaksi.status', $ongoing);
+                $this->db->order_by('date(created_at)','desc');
+            }
+            else if($type != "none"){
+                $this->db->where('transaksi.status', $type);
+                $this->db->order_by('date(finished_at)','desc');
             }
             else{
-                $this->db->where('status', $status);
-                $this->db->order_by('finished_at','desc');
+                $this->db->order_by('date(created_at)','desc');
             }
+
             return $this->db->get()->result();
         }
 

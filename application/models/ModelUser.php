@@ -4,7 +4,6 @@
 
         //BASIC CRUD
         //----------------------------------------------------------------------------------------------------------------------------------------
-
         public function getItem($username){
             // $this->db->select('id_item, nama');
             // $this->db->from('item');
@@ -16,16 +15,13 @@
         }
 
         public function loginUser($data){
-            $this->db->select('pengguna.id_pengguna, email, phone, password, status,
-                id_toko, nama_toko, alamat_toko');
+            $this->db->select('id_pengguna, nama, email, password, username, auth');
             $this->db->from('pengguna');
-            $this->db->join('histori_pengguna', 'pengguna.id_pengguna=histori_pengguna.id_pengguna');
-            $this->db->join('toko', 'pengguna.id_pengguna=toko.id_pengguna','left');
             $this->db->where('username', $data['username']);
-            $res = $this->db->get()->row();
+            $this->db->get()->row();
 
             if(password_verify($data['password'], $res->password)) {
-                if($res->status !== 'signed')
+                if($res->auth !== '1')
                     return null;
                 return $res;
             } 
@@ -36,25 +32,22 @@
         public function registerUser($data){
             $this->db->set('username', $data['username']);
             $this->db->set('email', $data['email']);
-            $this->db->set('phone', $data['phone']);
+            $this->db->set('nama', $data['nama']);
             $this->db->set('password', $data['password']);
-            $res = $this->db->insert('pengguna');
-
-            if($res == 0)
-                return $this->db->error();
-            else 
-                return $res;
-
+            $this->db->insert('pengguna');
+            return $this->db->affected_rows();
         }
 
         public function updateUser($id_pengguna, $data){
             $this->db->where('id_pengguna', $id_pengguna);
-            $res = $this->db->update('pengguna', $data);
+            $this->db->update('pengguna', $data);
+            return $this->db->affected_rows();
+        }
 
-            if($res == 0)
-                return $this->db->error();
-            else 
-                return $res;
+        public function updateUserPassword($id_pengguna, $data){
+            $this->db->where('id_pengguna', $id_pengguna);
+            $this->db->update('pengguna', $data);
+            return $this->db->affected_rows();
         }
 
         public function email($email){

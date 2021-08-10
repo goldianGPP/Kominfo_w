@@ -2,8 +2,6 @@
 // || \\ array_push($data,['id_cuci' => $key->id_cuci,'nama_cuci' => $key->nama_cuci]);
     class UserBased extends CI_Model {
 
-        var $Vdistance = [];
-
         public function __construct() {
             parent::__construct();
             $this->load->model('ModelItem','mi');
@@ -15,20 +13,32 @@
             $sim = [];
             $prediction = [];
 
-            // echo $type;
-            $datas = $this->mi->getUBItems($type);
+
+            if(is_array($type)){
+                $datas = $this->mi->getUBItemsSearch($type);
+                if (empty($datas[$person])) {
+                    return null;
+                }
+            }
+            else{
+                $datas = $this->mi->getUBItems($type);
+                if ($type!==null && empty($datas[$person])) {
+                    return null;
+                }
+            }
 
             foreach ($datas as $otherPerson => $values) {
                 if($otherPerson != $person){
-                    $sim[$otherPerson] = $this->similarities($datas,$person,$otherPerson);
+                    $temp = $this->similarities($datas,$person,$otherPerson);
+                    if (is_array($temp)) {
+                        $sim[$otherPerson] = $temp;
+                    }
                 }
             }
 
             array_multisort($sim, SORT_DESC);
-            
-                // array_multisort($test, SORT_DESC);
+
             return $this->setPrediction($datas,$sim,$type,$person);
-                
         }
 
         public function setPrediction($datas,$sim,$type,$person){
@@ -43,36 +53,40 @@
                 break;
             }
 
-            $items = $this->mi->getUBItem($type);
+            if(is_array($type))
+                $items = $this->mi->getUBItemSearch(array_keys($datas[$person]),$type);
+            else
+                $items = $this->mi->getUBItem(array_keys($datas[$person]),$type);
+
             foreach ($items as $item) {
                 foreach ($sim as $otherPerson => $value) {
-                    if(!array_key_exists("id_item-".$item->id_item,$datas[$person])){
-                        //get rating prediction each data to only 5 higest score of user's similarity
-                        //mengambil 5 data dari similaritas para user untuk menghitung prediksi score (nilai)
-                        if(array_key_exists("id_item-".$item->id_item, $datas[$otherPerson])){
-                            $sumPre += ($value * $this->Vdistance[$otherPerson]);
-                            $sumSim += abs($value);
-                            $check += 1;
-                            // echo $check."\n";
-                            if($check >= 5)
-                                break;
-                        }
+                    if(array_key_exists("id_item-".$item->id_item, $datas[$otherPerson])){
+                        $sumPre += ($value[0] * $value[1]);
+                        $sumSim += abs($value[0]);
+                        $check += 1;
+
+                        if($check >= 5)
+                            break;
                     }
                 }
                 if($check != 0){
-                    // $test[$item->nama] = $sumPre;
+                    $rank = $avgU + ($sumPre/$sumSim);
                     array_push($result,
                         [
+                            'id_pengguna' => $item->id_pengguna,
                             'id_item' => $item->id_item,
                             'nama' => $item->nama,
                             'jenis' => $item->jenis,
+                            'web' => $item->web,
                             'rating' => ($item->subrating/$item->sumrater),
+                            'deskripsi' => $item->deskripsi,
                             'img' => $item->img,
                             'harga' => $item->harga,
-                            'rank' => ($avgU + ($sumPre/$sumSim))
+                            'rank' => $rank
                         ]);
                 }
                 $sumPre = 0;
+                $sumSim = 0;
                 $check = 0;
             }
             
@@ -89,10 +103,9 @@
             $o_prsnAvg = 0;
             $personItem = 0;
             $otherPersonItem = 0;
-            $simDenominator = 0;
+            $simNumerator = 0;
 
             if(!$this->isEmpty($datas,$person,$otherPerson)){
-                $this->Vdistance[$otherPerson] = 0;
                 return 0;
             }
 
@@ -103,23 +116,25 @@
                     $personItem += (pow((float)$value[1]-(float)$value[2],2)); 
                     $otherPersonItem += (pow((float)$datas[$otherPerson][$item][1]-(float)$datas[$otherPerson][$item][2],2));
                     $o_prsnAvg += ((float)$datas[$otherPerson][$item][1]-(float)$datas[$otherPerson][$item][2]);
-                    $simDenominator += ((float)$value[1]-(float)$value[2])*((float)$datas[$otherPerson][$item][1]-(float)$datas[$otherPerson][$item][2]);
+                    $simNumerator += ((float)$value[1]-(float)$value[2])*((float)$datas[$otherPerson][$item][1]-(float)$datas[$otherPerson][$item][2]);
                 }
             }
 
-            $this->Vdistance[$otherPerson] = $o_prsnAvg;
-            $sim = $simDenominator / ((sqrt($personItem)) * (sqrt($otherPersonItem)));
-            return $sim;
+            $Vdistance = $o_prsnAvg;
+
+            $simDenominator = (sqrt($personItem) * sqrt($otherPersonItem));
+            if ($simDenominator<0) {
+                return 0;
+            }
+            else
+                return $sim = [($simNumerator / $simDenominator), $Vdistance];
         }
 
         //check similarity true or false
         //mengecek adanya kesamaan data
         public function isEmpty($datas,$person,$otherPerson){
-            $count = 0;
-
             foreach ($datas[$person] as $item => $value) {
                 if(array_key_exists($item, $datas[$otherPerson])){
-                    $count += 1;
                     return true;
                 }
             }

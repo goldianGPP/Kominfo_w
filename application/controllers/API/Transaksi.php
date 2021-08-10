@@ -14,23 +14,8 @@ use chriskacerguis\RestServer\RestController;
             $this->load->model('ModelTransaksi', 'transaksi');
         }
 
-        public function finished_get($id_pengguna=null,$switch=null){
-            $res = $this->transaksi->getFinished($id_pengguna,$switch); 
-            $this->response( $res , RestController::HTTP_OK);
-        }
-
-        public function requested_get($id_pengguna=null,$switch=null){
-            $res = $this->transaksi->getRequested($id_pengguna,$switch); 
-            $this->response( $res , RestController::HTTP_OK);
-        }
-
-        public function carts_get($id_pengguna=null,$switch=null){
-            $res = $this->transaksi->getCarts($id_pengguna,$switch);
-            $this->response( $res , RestController::HTTP_OK);
-        }
-
-        public function index_get($id_transaksi=null){
-            $res = $this->transaksi->getTransaksi($id_transaksi);
+        public function index_get($id_pengguna=null,$type=null,$indicate=null){
+            $res = $this->transaksi->getTransaksis($id_pengguna,$type,$indicate); 
             $this->response( $res , RestController::HTTP_OK);
         }
 
@@ -49,10 +34,20 @@ use chriskacerguis\RestServer\RestController;
             $data = [
                 'jumlah' => $this->put('jumlah'),
                 'subtotal' => $this->put('subtotal'),
-                'status' => "requested"
+                'created_at' => "CURDATE()"
             ];
 
             $res = $this->transaksi->addOnRequest($id_transaksi,$data);
+            $this->response( $res , RestController::HTTP_OK);
+        }
+
+        public function status_put(){
+            $id_transaksi = $this->put('id_transaksi');
+            $data = [
+                'status' => $this->put('status')
+            ];
+
+            $res = $this->transaksi->setStatus($id_transaksi,$data);
             $this->response( $res , RestController::HTTP_OK);
         }
     }

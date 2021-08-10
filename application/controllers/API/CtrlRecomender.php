@@ -25,48 +25,22 @@
         // mangambil rekomendasi dari items
 
         public function userbased_get($id_pengguna=null, $jenis=null){
-            $type=array("joran","kail","benang", null);
             $res = $this->ub->getRecommendations("id_pengguna-".$id_pengguna, $jenis);
             $this->response( $res , RestController::HTTP_OK);
         }
 
-        public function itembased_get($id_pengguna=null, $jenis=null, $id_item=null){
+        public function userbasedsearch_get($id_pengguna=null, $search=null){
+            $array = explode("%20", $search);
+            $res = $this->ub->getRecommendations("id_pengguna-".$id_pengguna, $array);
+            $this->response( $res , RestController::HTTP_OK);
+        }
+
+        public function itembased_get($id_pengguna=null, $id_item=null, $jenis=null){
             $res = $this->ib->getRecommendations("id_pengguna-".$id_pengguna, $jenis, $id_item);
             $this->response( $res , RestController::HTTP_OK);
         }
 
         //-----------------------------------------------------------------------------------------------
-
-        public function index_post(){
-            $data = [
-                'username' => $this->post('username'),
-                'email' => $this->post('email'),
-                'phone' => $this->post('phone'),
-                'password' => $this->post('password'),
-            ];
-
-            $data = $this->ub->createUser($data); 
-            $this->response( $data , RestController::HTTP_OK);
-        }
-
-        public function index_put(){
-            $data = [
-                'id_user' => $this->post('id_user'),
-                'username' => $this->post('username'),
-                'email' => $this->post('email'),
-                'phone' => $this->post('phone'),
-                'password' => $this->post('password'),
-            ];
-
-            $data = $this->ub->editUser($data); 
-            $this->response( $data , RestController::HTTP_OK);
-        }
-
-        public function index_delete(){
-            $data = $this->post('id_user');
-            $data = $this->ub->editUser($data); 
-            $this->response( $data , RestController::HTTP_OK);
-        }
     }
 
 ?>

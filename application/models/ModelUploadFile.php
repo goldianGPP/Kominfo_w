@@ -5,15 +5,15 @@
         //BASIC CRUD
         //----------------------------------------------------------------------------------------------------------------------------------------
 
-        public function upload($nama,$files){
+        public function uploads($nama,$folder,$files){
 
-            if (!is_dir('images/toko/'.$nama)) {
-                mkdir('./images/toko/'.$nama, 0777, TRUE);
+            if (!is_dir('images/'.$folder.'/'.$nama)) {
+                mkdir('./images/'.$folder.'/'.$nama, 0777, TRUE);
             }
 
             $config = array(
-                'upload_path'   => 'images/toko/'.$nama,
-                'allowed_types' => 'jpg|gif|png',
+                'upload_path'   => 'images/'.$folder.'/'.$nama,
+                'allowed_types' => 'jpg|jpeg|png',
                 'overwrite'     => true,                       
             );
 
@@ -28,7 +28,7 @@
                 $_FILES['images[]']['error']= $files['images']['error'][$key];
                 $_FILES['images[]']['size']= $files['images']['size'][$key];
 
-                $fileName = $nama.$count;
+                $fileName = $nama.$count.".jpg";
 
                 $config['file_name'] = $fileName;
 
@@ -44,6 +44,28 @@
             }
 
             return true;
+        }
+
+        public function upload($nama,$dir){
+            if (!is_dir('images/'.$dir.'/')) {
+                mkdir('./images/'.$dir.'/', 0777, TRUE);
+            }
+
+            $config['upload_path']          = './images/'.$dir;
+            $config['allowed_types']        = 'jpg|jpeg|png';
+            $config['file_name']            = $nama;
+            $config['overwrite']            = true;
+            //$config['max_size']             = 3000; // 1MB
+            // $config['max_width']            = 1024;
+            // $config['max_height']           = 768;
+
+            $this->load->library('upload', $config);
+
+            if ($this->upload->do_upload('image')) {
+                return true;
+            }
+            else
+                return false;
         }
     }
 
