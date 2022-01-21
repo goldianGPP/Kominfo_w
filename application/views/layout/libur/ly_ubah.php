@@ -10,8 +10,8 @@
           <div class="modal-body">
 
             <div class="form-floating mt-3">
-              <input name="tgl_presensi" class="form-control" id="tgl_presensi" type="date" placeholder="name@example.com" />
-              <label for="tgl_presensi">Tanggal</label>
+              <input name="tgl_libur" class="form-control" id="tgl_libur" type="date" placeholder="name@example.com" />
+              <label for="tgl_libur">Tanggal</label>
             </div>
 
             <input type="text" name="id_detail" hidden value="<? echo $value->id_detail ?>">
@@ -31,7 +31,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Ubah Data</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Hapus Data</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -41,7 +41,7 @@
             </div>
 
             <input type="text" name="id_detail" hidden value="<? echo $value->id_detail ?>">
-            <input type="text" name="tgl_presensi" hidden value="<? echo $value->tgl_presensi ?>">
+            <input type="text" name="tgl_libur" hidden value="<? echo $value->tgl_libur ?>">
           </div>
 
           <div class="modal-footer">

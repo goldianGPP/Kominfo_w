@@ -10,6 +10,7 @@ class Home extends CI_Controller
         parent::__construct();
         $this->load->model('ModelAbsen', 'ma');
         $this->load->model('ModelPengguna', 'mp');
+        $this->load->model('ModelDetailTgl', 'mdt');
         $this->load->helper('date');
         date_default_timezone_set('Asia/Jakarta');
     }
@@ -73,8 +74,13 @@ class Home extends CI_Controller
         $month = date('m');
         $date = date('Y-m-d', strtotime('+2 hours'));
 
-        $absen = $this->ma->getTable();
-        $pengguna = $this->mp->getAllPengguna();
+        $absen = $this->ma->getTable($year, $month);
+        $libur = [];
+        foreach ($this->mdt->getLibur(true) as $key => $value) {
+            $libur[$key] = $value->tgl_libur;
+        }
+
+        // print("<pre>".print_r($libur,true)."</pre>"); die;
 
 
         return [
@@ -84,8 +90,9 @@ class Home extends CI_Controller
             'monthname' => $this->getMonthName($month - 1),
             'days' => cal_days_in_month(CAL_GREGORIAN, $month, $year),
             'absens' => $absen,
-            'penggunas' => $pengguna,
+            'liburs' => $libur,
         ];
+
     }
 
     public function change($id_pengguna)
@@ -94,7 +101,6 @@ class Home extends CI_Controller
         $status = $this->input->post('status');
         $data = [
             'id_pengguna' => $id_pengguna,
-            'id_absen' => $this->input->post('id_absen'),
             'status' => $status,
             'tgl_presensi' => $this->input->post('tgl_presensi'),
         ];

@@ -6,7 +6,7 @@ class Libur extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('ModelAbsen', 'ma');
+        $this->load->model('ModelDetailTgl', 'mdt');
         $this->load->helper('date');
         date_default_timezone_set('Asia/Jakarta');
     }
@@ -27,36 +27,36 @@ class Libur extends CI_Controller
     }
 
     public function getLibur() {
-        return $this->ma->getLibur();
+        return $this->mdt->getLibur();
     }
 
     public function postLibur() {
         $data = [
-            'tgl_presensi' => $this->input->post('tgl_presensi'),
-            'status' => 'libur',
+            'tgl_libur' => $this->input->post('tgl_libur'),
+            'deskripsi' => $this->input->post('deskripsi'),
         ];
 
-        $this->ma->postAbsen($data);
+        $this->mdt->postLibur($data);
         redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function updateLibur() {
         $data = [
-            'id_absen' => $this->input->post('id_absen'),
-            'tgl_presensi' => $this->input->post('tgl_presensi'),
-            'status' => 'libur',
+            'id_detail' => $this->input->post('id_detail'),
+            'tgl_libur' => $this->input->post('tgl_libur'),
+            'deskripsi' => $this->input->post('deskripsi'),
         ];
         
-        $this->ma->updateAbsen($data);
+        $this->mdt->updateLibur($data);
         redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function deleteLibur() {
         $data = [
-            'id_absen' => $this->input->post('id_absen'),
-            'tgl_presensi' => $this->input->post('tgl_presensi'),
+            'id_detail' => $this->input->post('id_detail'),
+            'tgl_libur' => $this->input->post('tgl_libur'),
         ];
-        $this->ma->deleteAbsen($data);
+        $this->mdt->deleteLibur($data);
         redirect($_SERVER['HTTP_REFERER']);
     }
 

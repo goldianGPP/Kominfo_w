@@ -38,8 +38,8 @@
 										</td>
 										<td class="abs-col"><?= $value->jabatan; ?></td>
 
-										<?for ($i=1; $i < $days ; $i++) :  $date = date('Y-m-d', strtotime($year . '-' . $month . '-' . $i)) ?>
-											<? if ((date('N', strtotime($year . '-' . $month . '-' . $i)) < 6)) : ?>
+										<?for ($i=1; $i <= $days ; $i++) :  $date = date('Y-m-d', strtotime($year . '-' . $month . '-' . $i)) ?>
+											<? if ((date('N', strtotime($year . '-' . $month . '-' . $i)) < 6) && !in_array($date, $liburs) ) : ?>
 												<? if ($date > date('Y-m-d')) : ?>
 													<td class="abs-col-tgl"></td>
 												<? elseif (empty($value->{$date})) : ?>
