@@ -330,7 +330,9 @@ class CI_DB_result {
             $temp = $key->id_pengguna;
             $child['id_item-'.$key->id_item] = ['id_item-'.$key->id_item, $key->rating, $key->item_ratings];
         }
-        $parent['id_pengguna-'.$temp] = $child;
+        if (empty($child)) 
+        	$parent['id_pengguna-'.$temp] = $child;
+
         return $parent;
 	}
 
@@ -349,7 +351,9 @@ class CI_DB_result {
             $temp = $key->id_item;
             $child['id_pengguna-'.$key->id_pengguna] = ['id_pengguna-'.$key->id_pengguna, $key->rating, $key->item_ratings];
         }
-        $parent['id_item-'.$temp] = $child;
+        if (empty($child)) 
+        	$parent['id_item-'.$temp] = $child;
+        
         return $parent;
 	}
 

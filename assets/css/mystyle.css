@@ -1,0 +1,52 @@
+.mynav:hover {
+    background-color: #0083f5;
+}
+
+.mynav .fas {
+    color: white;
+}
+
+.abs-table,
+.abs-table-m {
+    text-align: center;
+    font-weight: bold;
+}
+
+.abs-table {
+    width: 100%;
+}
+
+.abs-table,
+.abs-table-m,
+.abs-col-h,
+.abs-col-h-danger,
+.abs-col,
+.abs-col-tgl {
+    border: solid;
+    border-color: black;
+}
+
+.abs-col-tgl {
+    min-width: 30px;
+}
+
+.col-al {
+    min-width: 290px;
+    text-align: left;
+}
+
+.ttd {
+    min-width: 30px;
+    max-width: 30px;
+    object-fit: cover;
+}
+
+.fixed {
+    position: relative;
+}
+
+.vl {
+    border-left: 6px solid green;
+    height: 500px;
+    float: left;
+}
