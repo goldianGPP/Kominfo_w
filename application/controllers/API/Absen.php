@@ -17,6 +17,7 @@ use chriskacerguis\RestServer\RestController;
 
             parent::__construct();
             $this->load->model('ModelAbsen', 'ma');
+            $this->load->model('ModelDetailTgl', 'mdt');
             $this->load->helper('date');
             date_default_timezone_set('Asia/Jakarta');
         }
@@ -27,6 +28,12 @@ use chriskacerguis\RestServer\RestController;
                 $this->response( $res , 200);
             else
                 $this->response( [] , 400);
+        }
+
+        public function libur_get() {
+            $res = $this->mdt->getLibur();
+
+            $this->response( $res , 200);
         }
 
         public function data_get($year=null,$month=null){

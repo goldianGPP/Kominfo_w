@@ -46,7 +46,7 @@
 													<td class="abs-col-tgl">A</td>
 												<? elseif ($value->{$date} == 'masuk') : ?>
 													<td class="abs-col-tgl">
-														<img class="ttd" src="<? echo base_url($value->tandatangan); ?>">
+														<img class="ttd" src="<? echo base_url("{$value->tandatangan}?v={date('mdYhisa', time())}"); ?>">
 													</td>
 												<? elseif ($value->{$date} == 'izin') : ?>
 													<td class="abs-col-tgl">I</td>

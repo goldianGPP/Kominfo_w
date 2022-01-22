@@ -14,6 +14,11 @@
               <label for="tgl_libur">Tanggal</label>
             </div>
 
+            <div class="form-floating mt-3 col-2">
+              <input name="deskripsi" class="form-control" id="deskripsi" type="text" placeholder="name@example.com" />
+              <label for="deskripsi">Deskripsi</label>
+            </div>
+
             <input type="text" name="id_detail" hidden value="<? echo $value->id_detail ?>">
           </div>
 

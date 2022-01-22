@@ -19,7 +19,7 @@
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
-                                                <th>Pengguna</th>
+                                                <th>Unggah Oleh</th>
                                                 <th>Nama File</th>
                                                 <th>Tipe</th>
                                                 <th>Tgl Buat</th>
@@ -30,7 +30,7 @@
                                         <tfoot>
                                             <tr>
                                                 <th>ID</th>
-                                                <th>Pengguna</th>
+                                                <th>Unggah Oleh</th>
                                                 <th>Nama File</th>
                                                 <th>Tipe</th>
                                                 <th>Tgl Buat</th>
@@ -48,7 +48,7 @@
                                                     <td><? echo $value->tgl_masuk; ?></td>
                                                     <td><? echo $value->tgl_ubah; ?></td>
                                                     <td>
-                                                        <a type="button" class="btn btn-primary" href="<?php echo base_url($value->path.'.pdf'); ?>">Buka</a>
+                                                        <a type="button" class="btn btn-primary" href="<?php echo base_url($value->path); ?>">Buka</a>
                                                         <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal<? echo $value->id_file; ?>">Ubah</button>
                                                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal2<? echo $value->id_file; ?>">Hapu</button>
                                                     </td>
