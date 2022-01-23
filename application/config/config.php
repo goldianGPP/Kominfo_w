@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://localhost:8082/kp/arsipIn/';
+$config['base_url'] = 'http://192.168.54.41:8082/kp/arsipIn/';
 
 /*
 |--------------------------------------------------------------------------

@@ -73,8 +73,6 @@ use chriskacerguis\RestServer\RestController;
                 $this->response( false , 400);
         }
 
-        
-
         public function image_post(){
             $id_pengguna = $this->input->post('id_pengguna', TRUE);
             $dir = "signature/";

@@ -54,6 +54,20 @@ class ModelAbsen extends CI_Model
         else
             return null;
     }
+    
+    public function getStatus($id_pengguna)
+    {
+        $this->db->select('count(id_pengguna) jum');
+        $this->db->from('absen');
+        $this->db->where('tgl_presensi', date('Y-m-d', strtotime('+2 hours')));
+        $this->db->where('id_pengguna', $id_pengguna);
+        $res = $this->db->get()->row();
+
+        if ($res->jum > 0)
+            return true;
+        else
+            return false;
+    }
 
     public function setColumn($year, $month)
     {

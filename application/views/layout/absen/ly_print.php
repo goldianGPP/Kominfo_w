@@ -89,6 +89,17 @@
 
 <script>
     window.onload = function() {
-        window.print();
+    	var url = window.location.href;
+
+    	function isMobile(){
+			if(url.indexOf('?mobile=') != -1)
+			    return true;
+			else if(url.indexOf('&mobile=') != -1)
+			    return true;
+			return false
+    	}
+
+    	if(!isMobile())
+			window.print();
     };
 </script>

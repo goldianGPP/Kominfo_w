@@ -5,7 +5,8 @@
         public function getPengguna($nip){
             $this->db->select('id_pengguna, nama, jabatan, nip, tugas, tandatangan');
             $this->db->from('pengguna');
-            $this->db->where('nip', $nip);
+            $this->db->or_where('nip', $nip);
+            $this->db->or_where('id_pengguna', $nip);
             $res = $this->db->get()->row();
 
             if(!empty($res->nip))

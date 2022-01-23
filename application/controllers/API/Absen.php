@@ -36,6 +36,12 @@ use chriskacerguis\RestServer\RestController;
             $this->response( $res , 200);
         }
 
+        public function status_get($id_pengguna) {
+            $res = $this->ma->getStatus($id_pengguna);
+            
+            $this->response( $res , 200);
+        }
+
         public function data_get($year=null,$month=null){
             $res = $this->ma->getAbsensi($year,$month);
             if($res != null)
